@@ -43,7 +43,7 @@ MOUNT.songs=root=>{
   <div class="panel svgwrap" id="kb"></div>`,
   notes:['Before playing: clap the rhythm while counting, then sing the letter names, then play.','Watch the glowing note and the matching key light up on the piano.','Start on <em>Slow</em>. Speed up only when it feels easy.','All these songs use the right hand in C position (thumb on Middle C).'],quiz:'nn'});
   const sys=$('#sys',root),kb=$('#kb',root),sayEl=$('#say',root);
-  const drawKB=()=>{kb.innerHTML=keysSVG({from:28,to:42,marks,labels:true,fingers:{60:1,62:2,64:3,65:4,67:5}})};
+  const drawKB=()=>{kb.innerHTML=keysSVG({from:25,to:42,marks,labels:true,fingers:{60:1,62:2,64:3,65:4,67:5}})};
   let evts=[];
   const draw=()=>{
     evts=parse(SONGS[si].s);evts.forEach((e,i)=>e.gi=i);

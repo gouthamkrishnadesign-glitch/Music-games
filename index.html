@@ -149,6 +149,18 @@ svg.staff{width:100%;max-width:980px;height:auto;display:block;margin:0 auto;tou
 .rest .rq{fill:none;stroke:var(--nc);stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
 .tie{fill:var(--tc,var(--staff))}
 .stacc{fill:var(--pink)}
+.acc line,.acc path{stroke:var(--nc);stroke-width:2.6;fill:none;stroke-linecap:round}
+.acc line.th{stroke-width:5}
+.ferm{fill:none;stroke:var(--pink);stroke-width:4;stroke-linecap:round}
+.blabel{fill:#fff;font-family:var(--font-display);font-weight:800;font-size:13px;text-anchor:middle;pointer-events:none}
+.symbig{font-family:var(--font-display);font-weight:800;font-size:96px;line-height:1;color:var(--pink);text-align:center}
+.check{display:flex;align-items:center;gap:12px;background:var(--bg2);border:2px solid var(--line);border-radius:20px;padding:10px 16px;cursor:pointer;text-align:left;font-family:var(--font-display);font-weight:700;font-size:20px;width:100%}
+.check .box{width:34px;height:34px;border-radius:10px;border:3px solid var(--muted);flex:0 0 auto;display:grid;place-items:center}
+.check.on{border-color:var(--good);background:color-mix(in srgb,var(--good) 12%,var(--bg2))}
+.check.on .box{background:var(--good);border-color:var(--good)}
+.blockrow{display:flex;gap:8px;flex-wrap:wrap;min-height:70px;align-items:center;padding:8px;border-radius:18px;border:2px dashed var(--line)}
+.rblock{border:0;border-radius:16px;padding:10px 16px;font-family:var(--font-display);font-weight:800;font-size:22px;color:var(--dark);cursor:pointer;background:var(--rc)}
+.rblock.now{outline:4px solid var(--star);transform:scale(1.08)}
 .count{fill:var(--muted);font-family:var(--font-display);font-weight:800;font-size:22px;text-anchor:middle}
 .count.r{opacity:.55}
 .count.now{fill:var(--star)}
@@ -342,10 +354,13 @@ details.teach em{color:var(--star);font-style:normal;font-weight:800}
   </div>
 </div>
 <div class="scrim" id="scrim"></div>
-<script src="nf-core.js"></script>
-<script src="nf-topics-a.js"></script>
-<script src="nf-topics-b.js"></script>
-<script src="nf-topics-c.js"></script>
-<script src="nf-quiz.js"></script>
-<script src="nf-app.js"></script>
+<script src="nf-core.js?v=4" charset="utf-8"></script>
+<script src="nf-topics-a.js?v=4" charset="utf-8"></script>
+<script src="nf-topics-b.js?v=4" charset="utf-8"></script>
+<script src="nf-topics-c.js?v=4" charset="utf-8"></script>
+<script src="nf-topics-d.js?v=4" charset="utf-8"></script>
+<script src="nf-topics-e.js?v=4" charset="utf-8"></script>
+<script src="nf-quiz.js?v=4" charset="utf-8"></script>
+<script src="nf-quiz2.js?v=4" charset="utf-8"></script>
+<script src="nf-app.js?v=4" charset="utf-8"></script>
 </html>

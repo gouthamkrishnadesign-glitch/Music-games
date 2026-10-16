@@ -122,9 +122,16 @@ function noteSVG(n,st){
     if(n.dur==='e'&&!n.beamed)g+=`<path class="flag" d="M${sx} ${sy} c2 ${up?14:-14} 20 ${up?18:-18} 16 ${up?40:-40}"/>`;
   }
   g+=`<ellipse class="head ${filled?'fill':'hollow'}" cx="${x}" cy="${y}" rx="${rx}" ry="${RY}"${whole?'':` transform="rotate(-18 ${x} ${y})"`}/>`;
+  if(n.acc)g+=accSVG(n.acc,x-rx-17,y);
   if(n.dur==='hd'){const dy=((n.d-b)%2===0)?-S/4:0;g+=`<circle class="dot" cx="${x+rx+10}" cy="${y+dy}" r="5"/>`}
   if(n.letter)g+=`<text class="nl${filled?'':' hol'}" x="${x}" y="${y+6}">${n.letter}</text>`;
   return s+g+'</g>';
+}
+/* sharp, flat and natural signs, drawn centred on (x,y) */
+function accSVG(k,x,y){
+  if(k==='sharp')return `<g class="acc"><line x1="${x-4}" y1="${y-22}" x2="${x-4}" y2="${y+20}"/><line x1="${x+4}" y1="${y-20}" x2="${x+4}" y2="${y+22}"/><line class="th" x1="${x-10}" y1="${y-5}" x2="${x+10}" y2="${y-11}"/><line class="th" x1="${x-10}" y1="${y+9}" x2="${x+10}" y2="${y+3}"/></g>`;
+  if(k==='flat')return `<g class="acc"><line x1="${x-5}" y1="${y-30}" x2="${x-5}" y2="${y+10}"/><path d="M${x-5} ${y+10} C${x+12} ${y+2} ${x+12} ${y-12} ${x-5} ${y-4}"/></g>`;
+  return `<g class="acc"><line x1="${x-5}" y1="${y-22}" x2="${x-5}" y2="${y+10}"/><line x1="${x+5}" y1="${y-10}" x2="${x+5}" y2="${y+22}"/><line class="th" x1="${x-5}" y1="${y-6}" x2="${x+5}" y2="${y-10}"/><line class="th" x1="${x-5}" y1="${y+10}" x2="${x+5}" y2="${y+6}"/></g>`;
 }
 function restSVG(r,st){
   const x=r.x,mid=st.Y(st.b+4),l4=st.oneLine?mid:st.Y(st.b+6);
@@ -171,6 +178,8 @@ function engrave(o){
     if(it.type==='tie'){const a=it.a,b=it.b,below=a._up,dir=below?1:-1,y=a._y+dir*(RY+5);s+=`<path class="tie"${it.color?` style="--tc:${it.color}"`:''} d="${arc(a.x+RX*.4,y,b.x-RX*.4,y,below,16)}"/>`}
     if(it.type==='slur'){const a=it.a,b=it.b,below=it.below??a._up,dir=below?1:-1;s+=`<path class="tie"${it.color?` style="--tc:${it.color}"`:''} d="${arc(a.x,a._y+dir*(RY+10),b.x,b._y+dir*(RY+10),below,30)}"/>`}
     if(it.type==='stacc'){const a=it.a;s+=`<circle class="stacc" cx="${a.x}" cy="${a._y+(a._up?RY+13:-(RY+13))}" r="6"/>`}
+    if(it.type==='accent'){const a=it.a,y=a._y+(a._up?RY+18:-(RY+18));s+=`<path class="hairpin" d="M${a.x-12} ${y-8} L${a.x+12} ${y} L${a.x-12} ${y+8}"/>`}
+    if(it.type==='fermata'){const a=it.a,y=Math.min(st.top-14,a._y-(a._up?S*3.4+12:RY+14));s+=`<path class="ferm" d="M${a.x-20} ${y} A20 20 0 0 1 ${a.x+20} ${y}"/><circle class="stacc" cx="${a.x}" cy="${y-6}" r="5"/>`}
     if(it.type==='count'){const y=st.oneLine?st.Y(st.b+4)+S*2.1:st.bot+S*2.4;s+=`<text class="count${it.rest?' r':''}"${it.i!=null?` data-i="${it.i}"`:''} x="${it.x}" y="${y}">${it.text}</text>`;if(it.sub)s+=`<text class="syl" x="${it.x}" y="${y+24}">${it.sub}</text>`}
     if(it.type==='dyn')s+=`<text class="dyn" x="${it.x}" y="${it.y??st.bot+S*2.3}">${it.text}</text>`;
     if(it.type==='hairpin'){const y=it.y??st.bot+S*2,a=it.cresc?it.x1:it.x2,b=it.cresc?it.x2:it.x1;s+=`<path class="hairpin" d="M${b} ${y-13} L${a} ${y} L${b} ${y+13}"/>`}
@@ -241,7 +250,8 @@ function keysSVG(o){
     w+='</g>';
     if(i<n-1&&[0,1,3,4,5].includes(((d%7)+7)%7)){
       const bm=m+1,bx=x+KW-BW/2-1,bmk=marks[bm];
-      bl+=`<g class="key black${o.shake===bm?' shake':''}" data-midi="${bm}"><rect x="${bx}" y="2" width="${BW}" height="${BH}" rx="5" fill="${bmk||'var(--keyb)'}"/></g>`;
+      const bt=o.blackLabels&&o.blackLabels[bm];
+      bl+=`<g class="key black${o.shake===bm?' shake':''}" data-midi="${bm}"><rect x="${bx}" y="2" width="${BW}" height="${BH}" rx="5" fill="${bmk||'var(--keyb)'}"/>${bt?`<text class="blabel" x="${bx+BW/2}" y="${BH-12}">${bt}</text>`:''}</g>`;
     }
   }
   return `<svg class="keys" viewBox="0 0 ${W} ${H}" role="img" aria-label="Piano keyboard">${w}${bl}</svg>`;
@@ -262,12 +272,16 @@ async function playEvents(evts,o){
       const tiedIn=!o.ignoreTies&&i>0&&evts[i-1].tieNext;
       if(!e.rest&&!tiedIn){
         let beats=DUR[e.dur];if(!o.ignoreTies){let j=i;while(evts[j].tieNext&&evts[j+1]){j++;beats+=DUR[evts[j].dur]}}
-        const vol=o.volFn?o.volFn(i,e):(o.vol??.3);
+        let vol=o.volFn?o.volFn(i,e):(o.vol??.3);if(e.accent&&!o.noAccent)vol=Math.min(.6,vol*2);
         if(o.clap)clap(Math.min(.9,vol*1.6));
-        else{let sec=beats*beatMs/1000;sec=(o.stacc||e.stacc&&!o.noStacc)?.16:o.legato?sec*1.1+.15:o.detached?sec*.45:sec*.92+.15;tone(e.midi,sec,0,vol)}
+        else{let sec=beats*beatMs/1000;if(e.ferm&&!o.noFerm)sec+=2.2;sec=(o.stacc||e.stacc&&!o.noStacc)?.16:o.legato?sec*1.1+.15:o.detached?sec*.45:sec*.92+.15;tone(e.midi,sec,0,vol)}
       }
     }
-    await wait(beatMs/2);
+    await wait((o.msFn?o.msFn(s):beatMs)/2);
+    if(starts.has(s)&&evts[starts.get(s)].ferm&&!o.noFerm&&!evts[starts.get(s)].rest){
+      // fermata: hold here before moving on (wait until the note's own length is done, then pause)
+      const e=evts[starts.get(s)];await wait(beatMs*DUR[e.dur]-beatMs/2+2200);s+=Math.round(DUR[e.dur]*2)-1;
+    }
   }
   o.onEnd&&o.onEnd();
   return true;
