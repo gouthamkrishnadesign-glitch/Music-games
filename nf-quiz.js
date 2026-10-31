@@ -20,20 +20,21 @@ const QBY=Object.fromEntries(QUIZ.map(q=>[q.id,q]));
 const cfgOf=qz=>{const c={};(qz.opts||[]).forEach(o=>c[o.k]=store.get(`nf-q-${qz.id}-${o.k}`,o.d));return c};
 const defOf=qz=>{const c={};(qz.opts||[]).forEach(o=>c[o.k]=o.d);return c};
 let trophies=store.get('nf-trophies',{});
+const ROUND=10; // questions per round
 
 function openQuiz(root,qz){
   const cfg=cfgOf(qz);
-  root.innerHTML=`<div class="head"><div class="eyebrow"><span class="unitchip" style="--uc:${qz.c}">Quiz Zone</span><span>Get 5 stars to win a trophy</span></div><h2>${qz.name}</h2><p class="lead">${qz.lead}</p></div>
+  root.innerHTML=`<div class="head"><div class="eyebrow"><span class="unitchip" style="--uc:${qz.c}">Quiz Zone</span><span>Get ${ROUND} stars to win a trophy</span></div><h2>${qz.name}</h2><p class="lead">${qz.lead}</p></div>
   <div class="panel qpanel"><div class="gamebar"><div class="row">${(qz.opts||[]).map(o=>chipGroup(o.l,o.c,cfg[o.k])).join('')}${qz.flash?`<span class="lbl">Answer by</span><button class="chip" data-mode="tap" aria-pressed="${!sayOut}">Tapping</button><button class="chip" data-mode="out" aria-pressed="${sayOut}">Saying it out loud</button>`:''}</div><div class="row"><span class="streak" id="streak"></span><div class="stars" id="stars"></div></div></div>
   <div class="qv" id="qv"></div><div class="say" id="say"></div><div id="qa"></div></div>
-  ${teacher(['<em>Saying it out loud</em>: the child answers aloud, you press <em>Show answer</em>, then <em>Got it</em> or <em>Not yet</em>. Great for quick-fire practice.','A wrong tap never takes a star away. It wiggles, and the child tries again.','5 stars = a trophy and a party. Trophies are counted in the Quiz Zone.'])}`;
+  ${teacher(['<em>Saying it out loud</em>: the child answers aloud, you press <em>Show answer</em>, then <em>Got it</em> or <em>Not yet</em>. Great for quick-fire practice.','A wrong tap never takes a star away. It wiggles, and the child tries again.',`${ROUND} stars = a trophy and a party. Trophies are counted in the Quiz Zone.`])}`;
   (qz.opts||[]).forEach(o=>bindChips(root,o.l,v=>{store.set(`nf-q-${qz.id}-${o.k}`,v);openQuiz(root,qz)}));
   $$('[data-mode]',root).forEach(b=>b.onclick=()=>{sayOut=b.dataset.mode==='out';store.set('nf-out',sayOut);openQuiz(root,qz)});
   const vEl=$('#qv',root),sayEl=$('#say',root),aEl=$('#qa',root),stEl=$('#stars',root),skEl=$('#streak',root);
   let n=0,streak=0,q=null,lock=false;
-  const paint=pop=>{stEl.innerHTML=[0,1,2,3,4].map(i=>starSVG(i<n?(pop&&i===n-1?'on pop':'on'):'off')).join('');skEl.innerHTML=streak>=2?`${ICON.flame}${streak} in a row!`:''};paint();
+  const paint=pop=>{stEl.innerHTML=Array.from({length:ROUND},(_,i)=>i).map(i=>starSVG(i<n?(pop&&i===n-1?'on pop':'on'):'off')).join('');skEl.innerHTML=streak>=2?`${ICON.flame}${streak} in a row!`:''};paint();
   function win(r={}){n++;addStar();paint(true);yay();if(r.sound)setTimeout(r.sound,450);
-    if(n>=5){trophies[qz.id]=(trophies[qz.id]||0)+1;store.set('nf-trophies',trophies);renderSide();setTimeout(()=>party('You did it!',`Five stars in ${qz.name}. Here is a trophy!`,()=>{n=0;paint();next()}),r.wait||1300)}
+    if(n>=ROUND){trophies[qz.id]=(trophies[qz.id]||0)+1;store.set('nf-trophies',trophies);renderSide();setTimeout(()=>party('You did it!',`${ROUND} stars in ${qz.name}. Here is a trophy!`,()=>{n=0;paint();next()}),r.wait||1300)}
     else setTimeout(()=>{if(q&&q._live)next()},r.wait||1500)}
   const api={locked:()=>lock,
     right(el,msg){if(lock)return;lock=true;streak++;const r=q.reveal?q.reveal():{};if(r.visual!=null)vEl.innerHTML=r.visual;say(sayEl,r.say||msg||'Yes!');if(el){el.classList.add('right');burst(el)}else burst(vEl,24);$$('.ans',aEl).forEach(b=>b.disabled=true);win(r)},
