@@ -145,6 +145,7 @@ svg.staff{width:100%;max-width:980px;height:auto;display:block;margin:0 auto;tou
 .dot{fill:var(--nc)}
 .nl{font-family:var(--font-display);font-weight:800;font-size:18px;text-anchor:middle;pointer-events:none;fill:var(--dark)}
 .nl.hol{fill:var(--ink)}
+.note.dim{opacity:.35}
 .note.pop{animation:notePop .45s cubic-bezier(.3,1.6,.5,1)}
 .rest rect,.rest circle{fill:var(--nc)}
 .rest .rq{fill:none;stroke:var(--nc);stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
@@ -190,6 +191,18 @@ svg.staff{width:100%;max-width:980px;height:auto;display:block;margin:0 auto;tou
 .step .n{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--card);color:var(--ink);font-weight:800}
 .step[aria-current="step"]{border-color:var(--star);color:var(--ink)}
 .step.done .n{background:var(--good);color:var(--dark)}
+.ngrid{display:grid;grid-template-columns:auto repeat(7,minmax(40px,1fr)) auto;gap:6px;align-items:center;overflow-x:auto}
+.ncol{border:0;border-radius:12px;background:var(--nc);color:var(--dark);font-family:var(--font-display);font-weight:800;font-size:22px;padding:6px 0;cursor:pointer}
+.ncol.on{outline:4px solid var(--star)}
+.nrow{border:2px solid var(--line);background:var(--bg2);border-radius:999px;padding:6px 12px;font-family:var(--font-display);font-weight:800;font-size:15px;cursor:pointer;color:var(--muted);white-space:nowrap}
+.nrow.on{border-color:var(--star);color:var(--ink)}
+.ncell{border:2px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);font-family:var(--font-display);font-weight:800;font-size:22px;padding:6px 0;cursor:pointer;display:flex;align-items:baseline;justify-content:center;gap:2px;transition:transform .12s}
+.ncell small{font-size:12px;color:var(--muted)}
+.ncell.in{background:color-mix(in srgb,var(--nc) 30%,var(--card));border-color:var(--nc)}
+.ncell.on{background:var(--nc);color:var(--dark);transform:scale(1.12)}
+.ncell.on small{color:var(--dark)}
+.nplay{border:0;background:var(--star);color:var(--dark);border-radius:50%;width:38px;height:38px;display:grid;place-items:center;cursor:pointer}
+.nplay svg{width:18px;height:18px}
 .tapres{font-family:var(--font-display);font-weight:800;font-size:28px;text-align:center}
 @media (max-width:720px){.counter span{width:62px;height:62px;font-size:36px}.counter{gap:10px}}
 .count{fill:var(--muted);font-family:var(--font-display);font-weight:800;font-size:22px;text-anchor:middle}
@@ -387,15 +400,16 @@ details.teach em{color:var(--star);font-style:normal;font-weight:800}
   </div>
 </div>
 <div class="scrim" id="scrim"></div>
-<script src="nf-core.js?v=8" charset="utf-8"></script>
-<script src="nf-topics-a.js?v=8" charset="utf-8"></script>
-<script src="nf-topics-b.js?v=8" charset="utf-8"></script>
-<script src="nf-topics-c.js?v=8" charset="utf-8"></script>
-<script src="nf-topics-d.js?v=8" charset="utf-8"></script>
-<script src="nf-topics-e.js?v=8" charset="utf-8"></script>
-<script src="nf-count.js?v=8" charset="utf-8"></script>
-<script src="nf-quiz.js?v=8" charset="utf-8"></script>
-<script src="nf-quiz2.js?v=8" charset="utf-8"></script>
-<script src="nf-count-quiz.js?v=8" charset="utf-8"></script>
-<script src="nf-app.js?v=8" charset="utf-8"></script>
+<script src="nf-core.js?v=12" charset="utf-8"></script>
+<script src="nf-topics-a.js?v=12" charset="utf-8"></script>
+<script src="nf-topics-b.js?v=12" charset="utf-8"></script>
+<script src="nf-topics-c.js?v=12" charset="utf-8"></script>
+<script src="nf-topics-d.js?v=12" charset="utf-8"></script>
+<script src="nf-topics-e.js?v=12" charset="utf-8"></script>
+<script src="nf-count.js?v=12" charset="utf-8"></script>
+<script src="nf-quiz.js?v=12" charset="utf-8"></script>
+<script src="nf-quiz2.js?v=12" charset="utf-8"></script>
+<script src="nf-count-quiz.js?v=12" charset="utf-8"></script>
+<script src="nf-reg.js?v=12" charset="utf-8"></script>
+<script src="nf-app.js?v=12" charset="utf-8"></script>
 </html>
