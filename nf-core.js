@@ -153,9 +153,10 @@ function engrave(o){
   staves.forEach((st,si)=>{
     if(st.oneLine){const y=st.Y(st.b+4);s+=`<line class="sl" x1="${x0}" x2="${x1}" y1="${y}" y2="${y}"/>`;return}
     for(let i=0;i<5;i++){const y=st.Y(st.b+i*2),lit=si===0&&o.litLines&&o.litLines.includes(i+1);s+=`<line class="sl${lit?' lit':''}" x1="${x0}" x2="${x1}" y1="${y}" y2="${y}"/>`}
-    if(st.clef==='treble')s+=`<text class="clef${o.glowClef?' glow':''}" x="${x0+14}" y="${st.Y(st.b+2)}" font-size="${4*S}">\u{1D11E}</text>`;
-    if(st.clef==='bass')s+=`<text class="clef${o.glowClef?' glow':''}" x="${x0+14}" y="${st.Y(st.b+6)}" font-size="${4*S}">\u{1D122}</text>`;
-    if(o.timeSig){const tx=st.clef?x0+104:x0+30;s+=`<text class="tsig${o.glowTime?' glow':''}" x="${tx}" y="${st.Y(st.b+6)+S*.75}">${o.timeSig[0]}</text><text class="tsig${o.glowTime?' glow':''}" x="${tx}" y="${st.Y(st.b+2)+S*.75}">${o.timeSig[1]}</text>`}
+    /* data-box = left,inkTop,inkBottom: placeClefs() fits the glyph's real ink to this box (standard engraving proportions) */
+    if(st.clef==='treble')s+=`<text class="clef${o.glowClef?' glow':''}" data-k="treble" data-box="${x0+12},${st.top-1.4*S},${st.bot+1.6*S}" x="${x0+14}" y="${st.Y(st.b+2)}" font-size="${4*S}">\u{1D11E}</text>`;
+    if(st.clef==='bass')s+=`<text class="clef${o.glowClef?' glow':''}" data-k="bass" data-box="${x0+14},${st.top-.05*S},${st.top+3.6*S}" x="${x0+14}" y="${st.Y(st.b+6)}" font-size="${4*S}">\u{1D122}</text>`;
+    if(o.timeSig){const tx=st.clef?x0+118:x0+30;s+=`<text class="tsig${o.glowTime?' glow':''}" x="${tx}" y="${st.Y(st.b+6)+S*.75}">${o.timeSig[0]}</text><text class="tsig${o.glowTime?' glow':''}" x="${tx}" y="${st.Y(st.b+2)+S*.75}">${o.timeSig[1]}</text>`}
   });
   if(o.brace&&staves.length>1){const yt=staves[0].top,yb=staves[1].bot,m=(yt+yb)/2;s+=`<line class="barl" x1="${x0}" x2="${x0}" y1="${yt}" y2="${yb}"/><path class="brace" d="M${x0-10} ${yt} C${x0-30} ${yt+30} ${x0-8} ${m-30} ${x0-26} ${m} C${x0-8} ${m+30} ${x0-30} ${yb-30} ${x0-10} ${yb}"/>`}
   if(o.lineNums&&!st0.oneLine){
@@ -192,6 +193,19 @@ function engrave(o){
   }
   return s+'</svg>';
 }
+/* Clef glyphs: measure the font's real ink once it loads, then fit every clef to its data-box. */
+const CLEFM={},CLEFCH={treble:'\u{1D11E}',bass:'\u{1D122}'};
+function measureClefs(){
+  const c=document.createElement('canvas').getContext('2d');
+  c.font=`100px 'Noto Music','Apple Symbols','Segoe UI Symbol',serif`;
+  Object.entries(CLEFCH).forEach(([k,ch])=>{const m=c.measureText(ch),h=m.actualBoundingBoxAscent+m.actualBoundingBoxDescent;if(h>0)CLEFM[k]={a:m.actualBoundingBoxAscent,d:m.actualBoundingBoxDescent,l:m.actualBoundingBoxLeft}});
+}
+function placeClefs(root=document){
+  $$('text.clef[data-box]',root).forEach(t=>{const m=CLEFM[t.dataset.k];if(!m)return;const [x,top,bot]=t.dataset.box.split(',').map(Number),F=100*(bot-top)/(m.a+m.d);
+    t.setAttribute('font-size',F.toFixed(2));t.setAttribute('y',(top+m.a*F/100).toFixed(2));t.setAttribute('x',(x+m.l*F/100).toFixed(2))});
+}
+(document.fonts&&document.fonts.load?document.fonts.load(`100px 'Noto Music'`,CLEFCH.treble+CLEFCH.bass):Promise.resolve()).catch(()=>{}).then(()=>{measureClefs();placeClefs()});
+new MutationObserver(()=>placeClefs()).observe(document.body,{childList:true,subtree:true});
 function countLabel(e){
   if(e.dur==='e')return Number.isInteger(e.beat)?`${e.beat+1}`:'&';
   const a=[];for(let k=0;k<DUR[e.dur];k++)a.push(e.beat+k+1);return a.join(' ');
