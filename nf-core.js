@@ -304,7 +304,7 @@ function beatDots(n=4){return `<div class="beats">${Array.from({length:n},(_,i)=
 function setBeat(el,k){$$('.beats span',el).forEach((s,i)=>s.classList.toggle('on',i===k))}
 
 /* ---------- text helpers ---------- */
-function say(el,html){if(!el)return;el.innerHTML=html;el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop')}
+function say(el,html){if(!el)return;el.innerHTML=`<span>${html}</span>`;el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop')}
 function tag(L){return `<span class="tag" style="--nc:${COLOR[L]}">${L}</span>`}
 function teacher(items){return `<details class="teach"><summary>Teacher notes</summary><ul>${items.map(i=>`<li>${i}</li>`).join('')}</ul></details>`}
 function chipGroup(name,opts,val){return `<span class="lbl">${name}</span>`+opts.map(([v,t])=>`<button class="chip" data-opt="${name}" data-v="${v}" aria-pressed="${v===val}">${t}</button>`).join('')}

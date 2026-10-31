@@ -103,7 +103,8 @@ main{display:flex;flex-direction:column;gap:18px;min-width:0}
 .chip{font-family:var(--font-display);font-weight:700;font-size:16px;padding:6px 14px;border-radius:999px;background:transparent;border:2px solid var(--line);cursor:pointer;color:var(--muted)}
 .chip[aria-pressed="true"]{background:var(--a);border-color:var(--a);color:#fff}
 .lbl{font-family:var(--font-display);font-weight:700;color:var(--muted);font-size:14px;letter-spacing:.08em;text-transform:uppercase;margin-right:2px}
-.say{font-family:var(--font-display);font-weight:700;font-size:clamp(21px,2.6vw,30px);line-height:1.25;background:var(--bg2);border:2px solid var(--line);border-radius:26px;padding:12px 22px;min-height:2.2em;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.say{font-family:var(--font-display);font-weight:700;font-size:clamp(21px,2.6vw,30px);line-height:1.25;background:var(--bg2);border:2px solid var(--line);border-radius:26px;padding:12px 22px;min-height:2.2em;display:block}
+.say .tag,.say .btn,.say .dynsym{vertical-align:middle;margin:2px 6px 2px 0}
 .say.pop{animation:sayPop .35s ease}
 .say .tag{display:inline-grid;place-items:center;min-width:1.6em;height:1.6em;border-radius:50%;background:var(--nc,var(--star));color:var(--dark);font-weight:800}
 .say .from{font-size:.6em;background:var(--card);border-radius:999px;padding:2px 10px;color:var(--muted)}
@@ -161,6 +162,36 @@ svg.staff{width:100%;max-width:980px;height:auto;display:block;margin:0 auto;tou
 .blockrow{display:flex;gap:8px;flex-wrap:wrap;min-height:70px;align-items:center;padding:8px;border-radius:18px;border:2px dashed var(--line)}
 .rblock{border:0;border-radius:16px;padding:10px 16px;font-family:var(--font-display);font-weight:800;font-size:22px;color:var(--dark);cursor:pointer;background:var(--rc)}
 .rblock.now{outline:4px solid var(--star);transform:scale(1.08)}
+/* beat map: notes stretched across the beats they last */
+.bmwrap{overflow-x:auto;min-width:0}
+.bm{display:grid;grid-template-columns:repeat(var(--cols),minmax(34px,1fr));gap:8px 4px;min-width:calc(var(--cols) * 38px)}
+.bm-n{grid-row:1;background:var(--nc);color:var(--dark);border-radius:14px;padding:8px 10px;font-family:var(--font-display);font-weight:800;font-size:18px;display:flex;justify-content:space-between;align-items:center;gap:6px;min-width:0;overflow:hidden;transition:transform .12s;white-space:nowrap}
+.bm-n i{font-style:normal;background:rgba(0,0,0,.18);border-radius:8px;padding:0 6px}
+.bm-n.r{background:transparent;border:3px dashed var(--muted);color:var(--muted)}
+.bm-n.now{outline:4px solid var(--star);transform:scale(1.05)}
+.bm-n.hit-p{box-shadow:0 0 0 4px var(--good)}
+.bm-n.hit-g{box-shadow:0 0 0 4px var(--e)}
+.bm-n.hit-m{box-shadow:0 0 0 4px var(--oops)}
+.bm-c{grid-row:2;text-align:center;font-family:var(--font-display);font-weight:800;font-size:22px;color:var(--ink);background:var(--card);border-radius:10px;padding:4px 0;transition:transform .1s}
+.bm-c.and{font-size:16px;color:var(--muted)}
+.bm-c.dim{opacity:.35}
+.bm-c.bar{box-shadow:-6px 0 0 -1px var(--staff)}
+.bm-c.on{background:var(--star);color:var(--dark);transform:scale(1.12);opacity:1}
+/* big counter with a bouncing ball */
+.counter{position:relative;display:flex;gap:16px;justify-content:center;padding-top:46px}
+.counter span{width:92px;height:92px;border-radius:50%;display:grid;place-items:center;background:var(--card);border:3px solid var(--line);font-family:var(--font-display);font-weight:800;font-size:54px;color:var(--muted);transition:transform .1s}
+.counter span.on{background:var(--star);border-color:var(--star);color:var(--dark);transform:scale(1.15)}
+.counter span.one.on{background:var(--c);border-color:var(--c)}
+.counter .ball{position:absolute;top:0;left:0;width:34px;height:34px;border-radius:50%;background:var(--pink);box-shadow:0 0 18px var(--pink);transition:transform .18s ease-out;pointer-events:none}
+.counter .ball.hop{animation:hop .3s ease-out}
+@keyframes hop{0%{translate:0 0}40%{translate:0 -26px}100%{translate:0 0}}
+.steps{display:flex;flex-wrap:wrap;gap:8px}
+.step{display:flex;align-items:center;gap:8px;padding:8px 14px 8px 8px;border-radius:999px;background:var(--bg2);border:2px solid var(--line);font-family:var(--font-display);font-weight:700;font-size:17px;cursor:pointer;color:var(--muted)}
+.step .n{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--card);color:var(--ink);font-weight:800}
+.step[aria-current="step"]{border-color:var(--star);color:var(--ink)}
+.step.done .n{background:var(--good);color:var(--dark)}
+.tapres{font-family:var(--font-display);font-weight:800;font-size:28px;text-align:center}
+@media (max-width:720px){.counter span{width:62px;height:62px;font-size:36px}.counter{gap:10px}}
 .count{fill:var(--muted);font-family:var(--font-display);font-weight:800;font-size:22px;text-anchor:middle}
 .count.r{opacity:.55}
 .count.now{fill:var(--star)}
@@ -356,13 +387,15 @@ details.teach em{color:var(--star);font-style:normal;font-weight:800}
   </div>
 </div>
 <div class="scrim" id="scrim"></div>
-<script src="nf-core.js?v=6" charset="utf-8"></script>
-<script src="nf-topics-a.js?v=6" charset="utf-8"></script>
-<script src="nf-topics-b.js?v=6" charset="utf-8"></script>
-<script src="nf-topics-c.js?v=6" charset="utf-8"></script>
-<script src="nf-topics-d.js?v=6" charset="utf-8"></script>
-<script src="nf-topics-e.js?v=6" charset="utf-8"></script>
-<script src="nf-quiz.js?v=6" charset="utf-8"></script>
-<script src="nf-quiz2.js?v=6" charset="utf-8"></script>
-<script src="nf-app.js?v=6" charset="utf-8"></script>
+<script src="nf-core.js?v=8" charset="utf-8"></script>
+<script src="nf-topics-a.js?v=8" charset="utf-8"></script>
+<script src="nf-topics-b.js?v=8" charset="utf-8"></script>
+<script src="nf-topics-c.js?v=8" charset="utf-8"></script>
+<script src="nf-topics-d.js?v=8" charset="utf-8"></script>
+<script src="nf-topics-e.js?v=8" charset="utf-8"></script>
+<script src="nf-count.js?v=8" charset="utf-8"></script>
+<script src="nf-quiz.js?v=8" charset="utf-8"></script>
+<script src="nf-quiz2.js?v=8" charset="utf-8"></script>
+<script src="nf-count-quiz.js?v=8" charset="utf-8"></script>
+<script src="nf-app.js?v=8" charset="utf-8"></script>
 </html>
